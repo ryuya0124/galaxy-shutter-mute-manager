@@ -25,7 +25,7 @@ object ShizukuInstaller {
             
             val process = newProcessMethod.invoke(
                 null,
-                arrayOf("pm", "install", "--bypass-low-target-sdk-block", "-r", "-S", apkFile.length().toString()),
+                arrayOf("pm", "install", "--user", "0", "--bypass-low-target-sdk-block", "-r", "-S", apkFile.length().toString()),
                 null,
                 null
             ) as Process
@@ -63,7 +63,7 @@ object ShizukuInstaller {
      * @return 付与結果（成功時 true）
      */
     fun grantWriteSecureSettings(): InstallResult {
-        val command = "pm grant $TARGET_PACKAGE android.permission.WRITE_SECURE_SETTINGS"
+        val command = "pm grant --user 0 $TARGET_PACKAGE android.permission.WRITE_SECURE_SETTINGS"
         val (exitCode, output) = ShizukuHelper.runShellCommand(command)
         return if (exitCode == 0) {
             InstallResult.Success
