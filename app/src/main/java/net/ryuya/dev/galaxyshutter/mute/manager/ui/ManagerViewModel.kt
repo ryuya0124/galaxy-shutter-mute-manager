@@ -141,7 +141,7 @@ class ManagerViewModel(private val context: Context) : ViewModel() {
 
             // インストール
             _uiState.update { it.copy(installState = InstallState.Installing) }
-            when (val installResult = ShizukuInstaller.installApk(apkFile.absolutePath)) {
+            when (val installResult = ShizukuInstaller.installApk(apkFile)) {
                 is InstallResult.Success -> {
                     // WRITE_SECURE_SETTINGS 権限付与
                     _uiState.update { it.copy(installState = InstallState.GrantingPermission) }
@@ -204,7 +204,7 @@ class ManagerViewModel(private val context: Context) : ViewModel() {
                     }
                 } ?: throw Exception("ファイルを開けませんでした")
 
-                when (val installResult = ShizukuInstaller.installApk(tempApk.absolutePath)) {
+                when (val installResult = ShizukuInstaller.installApk(tempApk)) {
                     is InstallResult.Success -> {
                         _uiState.update { it.copy(installState = InstallState.GrantingPermission) }
                         when (val grantResult = ShizukuInstaller.grantWriteSecureSettings()) {

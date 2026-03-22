@@ -13,21 +13,46 @@ object ShizukuInstaller {
     /** Galaxy Shutter Mute のパッケージ名 */
     private const val TARGET_PACKAGE = "net.ryuya.dev.galaxyshutter.mute"
 
-    /**
-     * Shizuku 経由で APK をインストールする
-     * `pm install --bypass-low-target-sdk-block` を使用することで
-     * targetSdk=21 の APK もインストール可能にする
-     *
-     * @param apkPath インストールする APK のファイルシステムパス
-     * @return インストール結果（成功時 true）
-     */
-    fun installApk(apkPath: String): InstallResult {
-        val command = "pm install --bypass-low-target-sdk-block -r \"$apkPath\""
-        val (exitCode, output) = ShizukuHelper.runShellCommand(command)
-        return if (exitCode == 0 || output.contains("Success", ignoreCase = true)) {
-            InstallResult.Success
-        } else {
-            InstallResult.Failure(output.trim())
+    fun installApk(apkFile: java.io.File): InstallResult {
+        return try {
+            val newProcessMethod = rikka.shizuku.Shizuku::class.java.getDeclaredMethod(
+                "newProcess",
+                Array<String>::class.java,
+                Array<String>::class.java,
+                String::class.java
+            )
+            newProcessMethod.isAccessible = true
+            
+            val process = newProcessMethod.invoke(
+                null,
+                arrayOf("pm", "install", "--bypass-low-target-sdk-block", "-r", "-S", apkFile.length().toString()),
+                null,
+                null
+            ) as Process
+            
+            // APKデータを標準入力に流し込むことで、権限の壁を越えてインストールする
+            apkFile.inputStream().use { input ->
+                process.outputStream.use { output ->
+                    input.copyTo(output)
+                    output.flush()
+                }
+            }
+            
+            val outputText = process.inputStream.bufferedReader().readText()
+            val errorText = process.errorStream.bufferedReader().readText()
+            val exitCode = process.waitFor()
+            process.destroy()
+            
+            val errorOutput = (outputText + "\n" + errorText).trim()
+            if (exitCode == 0 || outputText.contains("Success", ignoreCase = true)) {
+                InstallResult.Success
+            } else if (errorOutput.contains("INSTALL_FAILED_TEST_ONLY")) {
+                InstallResult.Failure("テスト用APK（test-only）のためインストールがブロックされました。\nAndroid StudioでビルドしたDebug版APKなどをインストールする場合は、Manager側での -t オプション対応が必要になるか、Release版のAPKをご利用ください。")
+            } else {
+                InstallResult.Failure(errorOutput)
+            }
+        } catch (e: Exception) {
+            InstallResult.Failure(e.localizedMessage ?: "Unknown error")
         }
     }
 
