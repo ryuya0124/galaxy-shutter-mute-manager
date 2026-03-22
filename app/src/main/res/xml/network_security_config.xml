@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    ネットワークセキュリティ設定
+    GitHub API は HTTPS のみ使用するため追加設定不要だが、
+    明示的に定義することでセキュリティ意図を明確にする
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

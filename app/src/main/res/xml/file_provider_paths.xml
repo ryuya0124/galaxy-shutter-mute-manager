@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    FileProvider のパス設定
+    ダウンロードした APK をキャッシュディレクトリ経由で共有するために必要
+-->
+<paths>
+    <cache-path name="apk_cache" path="." />
+</paths>
