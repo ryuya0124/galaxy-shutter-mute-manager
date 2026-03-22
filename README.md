@@ -2,7 +2,7 @@
 
 <p align="center">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg">
-  <img alt="Android" src="https://img.shields.io/badge/Android-8.0%2B-green.svg">
+  <img alt="Android" src="https://img.shields.io/badge/Android-9.0%2B-green.svg">
   <img alt="OneUI" src="https://img.shields.io/badge/OneUI-1.0%20~%208.5-blue.svg">
 </p>
 
@@ -19,7 +19,7 @@ Galaxy Shutter Mute は `targetSdkVersion=21` のため、Android 14 以降で�
 
 ## 動作確認済み環境
 
-- **OneUI 1.0 〜 OneUI 8.5** (Android 5.0 〜 Android 16)
+- **OneUI 1.0 〜 OneUI 8.5** (Android 9.0 〜 Android 16)
 
 ## 必要なもの
 
