@@ -185,6 +185,64 @@ class ManagerViewModel(private val context: Context) : ViewModel() {
         }
     }
 
+    /**
+     * ローカルで選択された APK (Uri) をコピーしてインストールする
+     */
+    fun installLocalApk(uri: android.net.Uri) {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    installState = InstallState.Installing,
+                    installError = null
+                )
+            }
+            try {
+                val tempApk = java.io.File(context.cacheDir, "temp_local_install.apk")
+                context.contentResolver.openInputStream(uri)?.use { input ->
+                    tempApk.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                } ?: throw Exception("ファイルを開けませんでした")
+
+                when (val installResult = ShizukuInstaller.installApk(tempApk.absolutePath)) {
+                    is InstallResult.Success -> {
+                        _uiState.update { it.copy(installState = InstallState.GrantingPermission) }
+                        when (val grantResult = ShizukuInstaller.grantWriteSecureSettings()) {
+                            is InstallResult.Success -> {
+                                _uiState.update { it.copy(installState = InstallState.Done) }
+                            }
+                            is InstallResult.Failure -> {
+                                _uiState.update {
+                                    it.copy(
+                                        installState = InstallState.Idle,
+                                        installError = "権限付与に失敗しました: ${grantResult.message}"
+                                    )
+                                }
+                            }
+                        }
+                        tempApk.delete()
+                    }
+                    is InstallResult.Failure -> {
+                        _uiState.update {
+                            it.copy(
+                                installState = InstallState.Idle,
+                                installError = "インストールに失敗しました: ${installResult.message}"
+                            )
+                        }
+                        tempApk.delete()
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        installState = InstallState.Idle,
+                        installError = "処理中にエラーが発生しました: ${e.localizedMessage}"
+                    )
+                }
+            }
+        }
+    }
+
     /** ViewModel ファクトリー */
     class Factory(private val context: Context) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")

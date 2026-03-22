@@ -27,6 +27,7 @@ fun ManagerApp() {
                 Screen.Main -> MainScreen(
                     uiState = uiState,
                     onInstall = viewModel::installOrUpdate,
+                    onInstallLocalApk = viewModel::installLocalApk,
                     onRefresh = viewModel::checkShizukuAndFetch,
                     onNavigateToSettings = { currentScreen = Screen.Settings }
                 )

@@ -26,6 +26,7 @@ import net.ryuya.dev.galaxyshutter.mute.manager.data.model.GitHubRelease
 fun MainScreen(
     uiState: ManagerUiState,
     onInstall: () -> Unit,
+    onInstallLocalApk: (android.net.Uri) -> Unit,
     onRefresh: () -> Unit,
     onNavigateToSettings: () -> Unit
 ) {
@@ -118,6 +119,29 @@ fun MainScreen(
                         style = MaterialTheme.typography.labelLarge
                     )
                 }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            val apkPickerLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+                androidx.activity.result.contract.ActivityResultContracts.OpenDocument()
+            ) { uri ->
+                if (uri != null) {
+                    onInstallLocalApk(uri)
+                }
+            }
+
+            OutlinedButton(
+                onClick = { apkPickerLauncher.launch(arrayOf("application/vnd.android.package-archive")) },
+                enabled = !isActionInProgress && uiState.shizukuState is ShizukuState.Ready,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Icon(Icons.Rounded.FolderOpen, contentDescription = null, modifier = Modifier.size(20.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("ファイルから選択してインストール", style = MaterialTheme.typography.labelLarge)
             }
         }
     }
