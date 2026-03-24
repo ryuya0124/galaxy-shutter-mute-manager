@@ -28,6 +28,7 @@ fun MainScreen(
     onInstall: () -> Unit,
     onInstallLocalApk: (android.net.Uri) -> Unit,
     onRefresh: () -> Unit,
+    onRequestShizukuPermission: () -> Unit,
     onNavigateToSettings: () -> Unit
 ) {
     Scaffold(
@@ -60,7 +61,10 @@ fun MainScreen(
             Spacer(modifier = Modifier.height(innerPadding.calculateTopPadding() + 16.dp))
 
             // Shizuku 状態バナー
-            ShizukuStatusBanner(shizukuState = uiState.shizukuState)
+            ShizukuStatusBanner(
+                shizukuState = uiState.shizukuState,
+                onRequestPermission = onRequestShizukuPermission
+            )
 
             // インストール状態カード
             InstallStatusCard(
@@ -151,7 +155,10 @@ fun MainScreen(
 
 /** Shizuku 状態バナー Composable */
 @Composable
-private fun ShizukuStatusBanner(shizukuState: ShizukuState) {
+private fun ShizukuStatusBanner(
+    shizukuState: ShizukuState,
+    onRequestPermission: () -> Unit
+) {
     val (icon, label, containerColor) = when (shizukuState) {
         is ShizukuState.Ready -> Triple(
             Icons.Rounded.CheckCircle,
@@ -163,9 +170,19 @@ private fun ShizukuStatusBanner(shizukuState: ShizukuState) {
             "Shizuku を確認中...",
             MaterialTheme.colorScheme.surfaceVariant
         )
+        is ShizukuState.PermissionRequired -> Triple(
+            Icons.Rounded.Warning,
+            "Shizuku の権限がありません",
+            MaterialTheme.colorScheme.errorContainer
+        )
+        is ShizukuState.Denied -> Triple(
+            Icons.Rounded.Error,
+            "Shizuku の権限が拒否されています",
+            MaterialTheme.colorScheme.errorContainer
+        )
         else -> Triple(
             Icons.Rounded.Warning,
-            "Shizuku が必要です",
+            "Shizuku が起動していません",
             MaterialTheme.colorScheme.errorContainer
         )
     }
@@ -178,10 +195,25 @@ private fun ShizukuStatusBanner(shizukuState: ShizukuState) {
                 .fillMaxWidth()
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
-            Text(text = label, style = MaterialTheme.typography.labelLarge)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
+                Text(text = label, style = MaterialTheme.typography.labelLarge)
+            }
+            if (shizukuState is ShizukuState.PermissionRequired || shizukuState is ShizukuState.Denied) {
+                TextButton(
+                    onClick = onRequestPermission,
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                    modifier = Modifier.height(32.dp)
+                ) {
+                    Text("権限を許可")
+                }
+            }
         }
     }
 }
