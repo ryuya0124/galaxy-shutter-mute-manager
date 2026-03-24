@@ -70,9 +70,8 @@ class ManagerViewModel(private val context: Context) : ViewModel() {
                 else -> ShizukuState.Ready
             }
             _uiState.update { it.copy(shizukuState = shizukuState) }
-            if (shizukuState == ShizukuState.Ready) {
-                fetchLatestRelease()
-            }
+            // Shizukuの状態に関わらず、最新リリース情報は取得する
+            fetchLatestRelease()
         }
     }
 
