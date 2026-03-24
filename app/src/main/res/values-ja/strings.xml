@@ -1,0 +1,51 @@
+<resources>
+    <string name="app_name">Galaxy Shutter Mute Manager</string>
+
+    <!-- MainScreen -->
+    <string name="title_manager">Galaxy Shutter Mute Manager</string>
+    <string name="action_settings">設定</string>
+    <string name="action_refresh">更新</string>
+
+    <string name="shizuku_ready">Shizuku 接続済み</string>
+    <string name="shizuku_checking">Shizuku を確認中...</string>
+    <string name="shizuku_permission_required">Shizuku の権限がありません</string>
+    <string name="shizuku_denied">Shizuku の権限が拒否されています</string>
+    <string name="shizuku_not_running">Shizuku が起動していません</string>
+    <string name="shizuku_grant_permission">権限を許可</string>
+
+    <string name="install_status">インストール状況</string>
+    <string name="installed_version">インストール済み</string>
+    <string name="latest_version">最新バージョン</string>
+    <string name="not_installed">未インストール</string>
+    <string name="fetching">取得中...</string>
+
+    <string name="downloading">ダウンロード中 %1$d%%</string>
+    <string name="installing">インストール中...</string>
+    <string name="granting_permission">権限を付与中...</string>
+
+    <string name="release_notes">リリースノート (%1$s)</string>
+
+    <string name="install_processing">処理中...</string>
+    <string name="install_up_to_date">最新版がインストール済み</string>
+    <string name="install_update">アップデート</string>
+    <string name="install_app">Galaxy Shutter Mute をインストール</string>
+    
+    <string name="grant_permission_only">権限のみを再付与する</string>
+    <string name="install_from_file">ファイルから選択してインストール</string>
+
+    <!-- SettingsScreen -->
+    <string name="settings_title">設定</string>
+    <string name="action_back">戻る</string>
+    <string name="github_releases_url">GitHub Releases URL</string>
+    <string name="github_releases_url_desc">Galaxy Shutter Mute の APK を取得する GitHub Releases API の URL を設定します。\n\nデフォルト: GitHubの公式リポジトリの URL</string>
+    <string name="invalid_url">有効な https:// で始まる URL を入力してください</string>
+    <string name="action_save">保存</string>
+
+    <!-- ViewModel Errors -->
+    <string name="error_fetch_release">リリース情報の取得に失敗しました:\n%1$s</string>
+    <string name="error_download_apk">APK のダウンロードに失敗しました</string>
+    <string name="error_grant_permission">権限付与に失敗しました: %1$s</string>
+    <string name="error_install_apk">インストールに失敗しました: %1$s</string>
+    <string name="error_open_file">ファイルを開けませんでした</string>
+    <string name="error_processing">処理中にエラーが発生しました: %1$s</string>
+</resources>

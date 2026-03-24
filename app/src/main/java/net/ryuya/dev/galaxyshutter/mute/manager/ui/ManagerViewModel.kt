@@ -100,7 +100,7 @@ class ManagerViewModel(private val context: Context) : ViewModel() {
                 _uiState.update {
                     it.copy(
                         isFetchingRelease = false,
-                        fetchError = "リリース情報の取得に失敗しました:\n${e.localizedMessage}"
+                        fetchError = context.getString(net.ryuya.dev.galaxyshutter.mute.manager.R.string.error_fetch_release, e.localizedMessage)
                     )
                 }
             }
@@ -141,7 +141,7 @@ class ManagerViewModel(private val context: Context) : ViewModel() {
                 _uiState.update {
                     it.copy(
                         installState = InstallState.Idle,
-                        installError = "APK のダウンロードに失敗しました"
+                        installError = context.getString(net.ryuya.dev.galaxyshutter.mute.manager.R.string.error_download_apk)
                     )
                 }
                 return@launch
@@ -167,7 +167,7 @@ class ManagerViewModel(private val context: Context) : ViewModel() {
                             _uiState.update {
                                 it.copy(
                                     installState = InstallState.Idle,
-                                    installError = "権限付与に失敗しました: ${grantResult.message}"
+                                    installError = context.getString(net.ryuya.dev.galaxyshutter.mute.manager.R.string.error_grant_permission, grantResult.message)
                                 )
                             }
                         }
@@ -178,7 +178,7 @@ class ManagerViewModel(private val context: Context) : ViewModel() {
                     _uiState.update {
                         it.copy(
                             installState = InstallState.Idle,
-                            installError = "インストールに失敗しました: ${installResult.message}"
+                            installError = context.getString(net.ryuya.dev.galaxyshutter.mute.manager.R.string.error_install_apk, installResult.message)
                         )
                     }
                 }
@@ -210,7 +210,7 @@ class ManagerViewModel(private val context: Context) : ViewModel() {
                     tempApk.outputStream().use { output ->
                         input.copyTo(output)
                     }
-                } ?: throw Exception("ファイルを開けませんでした")
+                } ?: throw Exception(context.getString(net.ryuya.dev.galaxyshutter.mute.manager.R.string.error_open_file))
 
                 when (val installResult = ShizukuInstaller.installApk(tempApk)) {
                     is InstallResult.Success -> {
@@ -223,7 +223,7 @@ class ManagerViewModel(private val context: Context) : ViewModel() {
                                 _uiState.update {
                                     it.copy(
                                         installState = InstallState.Idle,
-                                        installError = "権限付与に失敗しました: ${grantResult.message}"
+                                        installError = context.getString(net.ryuya.dev.galaxyshutter.mute.manager.R.string.error_grant_permission, grantResult.message)
                                     )
                                 }
                             }
@@ -234,7 +234,7 @@ class ManagerViewModel(private val context: Context) : ViewModel() {
                         _uiState.update {
                             it.copy(
                                 installState = InstallState.Idle,
-                                installError = "インストールに失敗しました: ${installResult.message}"
+                                installError = context.getString(net.ryuya.dev.galaxyshutter.mute.manager.R.string.error_install_apk, installResult.message)
                             )
                         }
                         tempApk.delete()
@@ -244,8 +244,30 @@ class ManagerViewModel(private val context: Context) : ViewModel() {
                 _uiState.update {
                     it.copy(
                         installState = InstallState.Idle,
-                        installError = "処理中にエラーが発生しました: ${e.localizedMessage}"
+                        installError = context.getString(net.ryuya.dev.galaxyshutter.mute.manager.R.string.error_processing, e.localizedMessage)
                     )
+                }
+            }
+        }
+    }
+
+    /**
+     * 権限のみを再付与する
+     */
+    fun grantPermissionOnly() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(installState = InstallState.GrantingPermission, installError = null) }
+            when (val grantResult = ShizukuInstaller.grantWriteSecureSettings()) {
+                is InstallResult.Success -> {
+                    _uiState.update { it.copy(installState = InstallState.Done) }
+                }
+                is InstallResult.Failure -> {
+                    _uiState.update {
+                        it.copy(
+                            installState = InstallState.Idle,
+                            installError = context.getString(net.ryuya.dev.galaxyshutter.mute.manager.R.string.error_grant_permission, grantResult.message)
+                        )
+                    }
                 }
             }
         }

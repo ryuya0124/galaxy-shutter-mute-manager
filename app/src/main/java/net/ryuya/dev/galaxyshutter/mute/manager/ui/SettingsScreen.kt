@@ -9,8 +9,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import net.ryuya.dev.galaxyshutter.mute.manager.R
 
 /**
  * GitHub Releases URL を設定する画面
@@ -31,13 +33,13 @@ fun SettingsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "設定",
+                        text = stringResource(R.string.settings_title),
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Rounded.ArrowBack, contentDescription = "戻る")
+                        Icon(Icons.Rounded.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 }
             )
@@ -61,18 +63,18 @@ fun SettingsScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
-                        text = "GitHub Releases URL",
+                        text = stringResource(R.string.github_releases_url),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                     )
                     Text(
-                        text = "Galaxy Shutter Mute の APK を取得する GitHub Releases API の URL を設定します。\n\nデフォルト: GitHubの公式リポジトリの URL",
+                        text = stringResource(R.string.github_releases_url_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     OutlinedTextField(
                         value = urlInput,
                         onValueChange = { urlInput = it },
-                        label = { Text("Releases API URL") },
+                        label = { Text(stringResource(R.string.github_releases_url)) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         singleLine = true,
@@ -80,7 +82,7 @@ fun SettingsScreen(
                     )
                     if (urlInput.isBlank() || !urlInput.startsWith("https://")) {
                         Text(
-                            text = "有効な https:// で始まる URL を入力してください",
+                            text = stringResource(R.string.invalid_url),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.error
                         )
@@ -100,7 +102,7 @@ fun SettingsScreen(
             ) {
                 Icon(Icons.Rounded.Save, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("保存", style = MaterialTheme.typography.labelLarge)
+                Text(stringResource(R.string.action_save), style = MaterialTheme.typography.labelLarge)
             }
             
             Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding() + 16.dp))

@@ -46,6 +46,7 @@ fun ManagerApp() {
                     uiState = uiState,
                     onInstall = viewModel::installOrUpdate,
                     onInstallLocalApk = viewModel::installLocalApk,
+                    onGrantPermissionOnly = viewModel::grantPermissionOnly,
                     onRefresh = viewModel::checkShizukuAndFetch,
                     onRequestShizukuPermission = viewModel::requestShizukuPermission,
                     onNavigateToSettings = { currentScreen = Screen.Settings }

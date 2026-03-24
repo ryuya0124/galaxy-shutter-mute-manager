@@ -12,9 +12,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import net.ryuya.dev.galaxyshutter.mute.manager.R
 import net.ryuya.dev.galaxyshutter.mute.manager.data.model.GitHubRelease
 
 /**
@@ -27,6 +29,7 @@ fun MainScreen(
     uiState: ManagerUiState,
     onInstall: () -> Unit,
     onInstallLocalApk: (android.net.Uri) -> Unit,
+    onGrantPermissionOnly: () -> Unit,
     onRefresh: () -> Unit,
     onRequestShizukuPermission: () -> Unit,
     onNavigateToSettings: () -> Unit
@@ -36,16 +39,16 @@ fun MainScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Galaxy Shutter Mute Manager",
+                        text = stringResource(R.string.title_manager),
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
                     )
                 },
                 actions = {
                     IconButton(onClick = onNavigateToSettings) {
-                        Icon(Icons.Rounded.Settings, contentDescription = "設定")
+                        Icon(Icons.Rounded.Settings, contentDescription = stringResource(R.string.action_settings))
                     }
                     IconButton(onClick = onRefresh) {
-                        Icon(Icons.Rounded.Refresh, contentDescription = "更新")
+                        Icon(Icons.Rounded.Refresh, contentDescription = stringResource(R.string.action_refresh))
                     }
                 }
             )
@@ -98,8 +101,21 @@ fun MainScreen(
             // インストール/アップデートボタン
             val isInstalled = uiState.installedVersion != null
             val latestVersion = uiState.latestRelease?.tagName?.removePrefix("v")
-            val isUpToDate = isInstalled && latestVersion != null &&
-                    uiState.installedVersion == latestVersion
+            val isUpToDate = isInstalled && latestVersion != null && run {
+                val v1Parts = uiState.installedVersion!!.split(".").map { it.toIntOrNull() ?: 0 }
+                val v2Parts = latestVersion.split(".").map { it.toIntOrNull() ?: 0 }
+                val maxLen = maxOf(v1Parts.size, v2Parts.size)
+                var result = 0
+                for (i in 0 until maxLen) {
+                    val p1 = v1Parts.getOrElse(i) { 0 }
+                    val p2 = v2Parts.getOrElse(i) { 0 }
+                    if (p1 != p2) {
+                        result = p1.compareTo(p2)
+                        break
+                    }
+                }
+                result >= 0
+            }
             val isActionInProgress = uiState.installState !is InstallState.Idle &&
                     uiState.installState !is InstallState.Done
 
@@ -115,13 +131,29 @@ fun MainScreen(
                 AnimatedContent(targetState = isInstalled, label = "buttonLabel") { installed ->
                     Text(
                         text = when {
-                            isActionInProgress -> "処理中..."
-                            isUpToDate -> "最新版がインストール済み"
-                            installed -> "アップデート"
-                            else -> "Galaxy Shutter Mute をインストール"
+                            isActionInProgress -> stringResource(R.string.install_processing)
+                            isUpToDate -> stringResource(R.string.install_up_to_date)
+                            installed -> stringResource(R.string.install_update)
+                            else -> stringResource(R.string.install_app)
                         },
                         style = MaterialTheme.typography.labelLarge
                     )
+                }
+            }
+            
+            if (isInstalled) {
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedButton(
+                    onClick = onGrantPermissionOnly,
+                    enabled = !isActionInProgress && uiState.shizukuState is ShizukuState.Ready,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Icon(Icons.Rounded.VpnKey, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(stringResource(R.string.grant_permission_only), style = MaterialTheme.typography.labelLarge)
                 }
             }
 
@@ -145,7 +177,7 @@ fun MainScreen(
             ) {
                 Icon(Icons.Rounded.FolderOpen, contentDescription = null, modifier = Modifier.size(20.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("ファイルから選択してインストール", style = MaterialTheme.typography.labelLarge)
+                Text(stringResource(R.string.install_from_file), style = MaterialTheme.typography.labelLarge)
             }
             
             Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding() + 16.dp))
@@ -162,27 +194,27 @@ private fun ShizukuStatusBanner(
     val (icon, label, containerColor) = when (shizukuState) {
         is ShizukuState.Ready -> Triple(
             Icons.Rounded.CheckCircle,
-            "Shizuku 接続済み",
+            stringResource(R.string.shizuku_ready),
             MaterialTheme.colorScheme.primaryContainer
         )
         is ShizukuState.Checking -> Triple(
             Icons.Rounded.HourglassEmpty,
-            "Shizuku を確認中...",
+            stringResource(R.string.shizuku_checking),
             MaterialTheme.colorScheme.surfaceVariant
         )
         is ShizukuState.PermissionRequired -> Triple(
             Icons.Rounded.Warning,
-            "Shizuku の権限がありません",
+            stringResource(R.string.shizuku_permission_required),
             MaterialTheme.colorScheme.errorContainer
         )
         is ShizukuState.Denied -> Triple(
             Icons.Rounded.Error,
-            "Shizuku の権限が拒否されています",
+            stringResource(R.string.shizuku_denied),
             MaterialTheme.colorScheme.errorContainer
         )
         else -> Triple(
             Icons.Rounded.Warning,
-            "Shizuku が起動していません",
+            stringResource(R.string.shizuku_not_running),
             MaterialTheme.colorScheme.errorContainer
         )
     }
@@ -214,7 +246,7 @@ private fun ShizukuStatusBanner(
                         contentColor = MaterialTheme.colorScheme.onErrorContainer
                     )
                 ) {
-                    Text("権限を許可", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.shizuku_grant_permission), fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -235,7 +267,7 @@ private fun InstallStatusCard(
     ) {
         Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
-                text = "インストール状況",
+                text = stringResource(R.string.install_status),
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
             )
             HorizontalDivider()
@@ -243,9 +275,9 @@ private fun InstallStatusCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("インストール済み", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(R.string.installed_version), style = MaterialTheme.typography.bodyMedium)
                 Text(
-                    text = installedVersion ?: "未インストール",
+                    text = installedVersion ?: stringResource(R.string.not_installed),
                     style = MaterialTheme.typography.bodyMedium,
                     color = if (installedVersion != null)
                         MaterialTheme.colorScheme.primary
@@ -256,12 +288,12 @@ private fun InstallStatusCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("最新バージョン", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(R.string.latest_version), style = MaterialTheme.typography.bodyMedium)
                 if (isFetching) {
                     CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                 } else {
                     Text(
-                        text = latestRelease?.tagName ?: "取得中...",
+                        text = latestRelease?.tagName ?: stringResource(R.string.fetching),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -284,9 +316,9 @@ private fun InstallProgressCard(installState: InstallState) {
         label = "progress"
     )
     val label = when (installState) {
-        is InstallState.Downloading -> "ダウンロード中 ${(installState.progress * 100).toInt()}%"
-        is InstallState.Installing -> "インストール中..."
-        is InstallState.GrantingPermission -> "権限を付与中..."
+        is InstallState.Downloading -> stringResource(R.string.downloading, (installState.progress * 100).toInt())
+        is InstallState.Installing -> stringResource(R.string.installing)
+        is InstallState.GrantingPermission -> stringResource(R.string.granting_permission)
         else -> ""
     }
     Card(
@@ -319,7 +351,7 @@ private fun ReleaseNotesCard(body: String, tagName: String) {
     ) {
         Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
-                text = "リリースノート ($tagName)",
+                text = stringResource(R.string.release_notes, tagName),
                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold)
             )
             HorizontalDivider()
