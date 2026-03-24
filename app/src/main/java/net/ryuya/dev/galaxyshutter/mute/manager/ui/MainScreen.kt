@@ -209,9 +209,12 @@ private fun ShizukuStatusBanner(
                 TextButton(
                     onClick = onRequestPermission,
                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
-                    modifier = Modifier.height(32.dp)
+                    modifier = Modifier.height(32.dp),
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer
+                    )
                 ) {
-                    Text("権限を許可")
+                    Text("権限を許可", fontWeight = FontWeight.Bold)
                 }
             }
         }
