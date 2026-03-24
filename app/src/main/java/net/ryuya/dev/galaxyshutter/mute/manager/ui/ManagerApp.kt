@@ -4,7 +4,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.delay
 import net.ryuya.dev.galaxyshutter.mute.manager.ui.theme.ManagerTheme
 
 /**
@@ -20,6 +24,19 @@ fun ManagerApp() {
 
     // 現在表示中の画面を管理する状態
     var currentScreen by remember { mutableStateOf(Screen.Main) }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    // フォアグラウンド時（RESUMED）のみ定期実行（1分間隔）し、バックグラウンド時は終了する
+    // 画面に復帰（ON_RESUME）した直後にもブロックが再開され即座にチェックが走る
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            while (true) {
+                viewModel.checkInstalledVersion()
+                delay(60_000L) // 1分待機
+            }
+        }
+    }
 
     ManagerTheme {
         Surface(color = MaterialTheme.colorScheme.background) {

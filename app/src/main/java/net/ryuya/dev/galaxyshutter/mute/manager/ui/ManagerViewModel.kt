@@ -109,6 +109,15 @@ class ManagerViewModel(private val context: Context) : ViewModel() {
     }
 
     /**
+     * インストール済みバージョンをローカルで再確認し、UI状態を更新する
+     * （バックグラウンド復帰時や定期ポーリング用）
+     */
+    fun checkInstalledVersion() {
+        val installedVersion = releaseRepository.getInstalledVersion()
+        _uiState.update { it.copy(installedVersion = installedVersion) }
+    }
+
+    /**
      * APK をダウンロードして Shizuku 経由でインストールし、
      * WRITE_SECURE_SETTINGS 権限を付与する
      */
