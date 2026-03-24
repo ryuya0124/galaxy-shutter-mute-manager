@@ -46,10 +46,10 @@ fun SettingsScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp),
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            Spacer(modifier = Modifier.height(innerPadding.calculateTopPadding() + 16.dp))
 
             Card(
                 shape = RoundedCornerShape(16.dp),
@@ -102,6 +102,8 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("保存", style = MaterialTheme.typography.labelLarge)
             }
+            
+            Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding() + 16.dp))
         }
     }
 }
