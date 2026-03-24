@@ -1,5 +1,6 @@
 package net.ryuya.dev.galaxyshutter.mute.manager.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
@@ -48,15 +49,20 @@ fun ManagerApp() {
                     onRefresh = viewModel::checkShizukuAndFetch,
                     onNavigateToSettings = { currentScreen = Screen.Settings }
                 )
-                Screen.Settings -> SettingsScreen(
-                    currentUrl = releasesUrl,
-                    onSave = { url ->
-                        viewModel.saveReleasesUrl(url)
+                Screen.Settings -> {
+                    BackHandler {
                         currentScreen = Screen.Main
-                        viewModel.fetchLatestRelease()
-                    },
-                    onBack = { currentScreen = Screen.Main }
-                )
+                    }
+                    SettingsScreen(
+                        currentUrl = releasesUrl,
+                        onSave = { url ->
+                            viewModel.saveReleasesUrl(url)
+                            currentScreen = Screen.Main
+                            viewModel.fetchLatestRelease()
+                        },
+                        onBack = { currentScreen = Screen.Main }
+                    )
+                }
             }
         }
     }
