@@ -7,7 +7,6 @@
 
 # Gradle
 .gradle/
-**/gradle-wrapper.jar
 local.properties
 
 # Android Studio / IntelliJ IDEA
@@ -30,3 +29,12 @@ Thumbs.db
 # Release outputs
 /app/release/
 /release/
+
+# Generated / Intermediate files
+*.class
+*.log
+*.prof
+*.profm
+
+# Android Studio
+.navigation/
