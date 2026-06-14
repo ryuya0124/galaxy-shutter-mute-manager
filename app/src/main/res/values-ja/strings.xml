@@ -32,6 +32,8 @@
     
     <string name="grant_permission_only">権限のみを再付与する</string>
     <string name="install_from_file">ファイルから選択してインストール</string>
+    <string name="open_galaxy_shutter_mute">Galaxy Shutter Mute を開く</string>
+    <string name="error_open_app">アプリが見つかりません</string>
 
     <!-- SettingsScreen -->
     <string name="settings_title">設定</string>

@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -154,6 +155,28 @@ fun MainScreen(
                     Icon(Icons.Rounded.VpnKey, contentDescription = null, modifier = Modifier.size(20.dp))
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(stringResource(R.string.grant_permission_only), style = MaterialTheme.typography.labelLarge)
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                val context = LocalContext.current
+                OutlinedButton(
+                    onClick = {
+                        val intent = context.packageManager.getLaunchIntentForPackage("net.ryuya.dev.galaxyshutter.mute")
+                        if (intent != null) {
+                            intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                            context.startActivity(intent)
+                        } else {
+                            android.widget.Toast.makeText(context, R.string.error_open_app, android.widget.Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Icon(Icons.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(stringResource(R.string.open_galaxy_shutter_mute), style = MaterialTheme.typography.labelLarge)
                 }
             }
 
